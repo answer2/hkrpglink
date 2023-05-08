@@ -1,5 +1,6 @@
 package com.answer.hkrgplink.utils;
 import java.util.Date;
+import android.os.Build;
 
 /**
  * @Author AnswerDev
@@ -7,19 +8,34 @@ import java.util.Date;
  */
 public class HttpDataUtil {
     
-    public final String getDs() {
+    public static final String getDs() {
+        String salt = "ulInCDohgEs557j0VsPDYnQaaz6KJcv5";
         long time = new Date().getTime() / 1000;
         String str = getStr();
-        String md5 = Md5Util.getMD5("salt=ulInCDohgEs557j0VsPDYnQaaz6KJcv5&t=" + time + "&r=" + str);
-        return time + ',' + str + ',' + md5;
-    }
+        String key = "salt=" + salt + "&t=" + time + "&r=" + str;
+        String md5 = Md5Util.getMD5(key);
 
-    private final String getStr() {
-        String str = "";
-        for (int i = 0; i < 6; i++) {
-            str = str + "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678".charAt((int) Math.floor(Math.random() * 48));
-        }
-        return str;
+        return time+"," + str + "," + md5;
     }
     
+    
+    public static final String getStr() {
+        String chars = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678";
+        int maxPos = chars.length();
+        String code = "";
+        for (int i = 0; i < 6; i++) {
+            code += chars.charAt((int)Math.floor(Math.random() * maxPos));
+        }
+        return code;
+    }
+
+    
+    public static String getOs_system(){
+        return "Android OS " + Build.VERSION.RELEASE +" / API-"+Build.VERSION.SDK_INT+" ("+Build.ID+"/"+Build.VERSION.INCREMENTAL+")";
+    }
+    
+    public static String getDevice_model(){
+        String[] info = Build.FINGERPRINT.split("/");
+        return info[0]+" "+info[1];
+    }
 }
