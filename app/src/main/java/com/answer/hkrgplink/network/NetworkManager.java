@@ -122,39 +122,31 @@ public class NetworkManager {
                             String game_biz = userService.getGame_biz();
                             String region = userService.getRegion();
 
-
+                            
                             AuthKeyPostData authKeyPostData = new AuthKeyPostData("webview_gacha", game_biz, game_uid, region);
                             String toJson = gson.toJson(authKeyPostData);
-
+                            
                             System.out.println(toJson);
-
+                            
                             RequestBody createRequestBody = RequestBody.create(toJson, MediaType.Companion.get("application/json;charset=utf-8"));
-
+                            
 
                             //{"data":null,"message":"invalid request","retcode":-10001}
-                            System.out.println(stuid_cookie);
-                            System.out.println(HttpDataUtil.getDs());
-
+                            
                             ResponseBody genAuthKeyBody = client.newCall(new Request.Builder()
                                                                          .url("https://api-takumi.mihoyo.com/binding/api/genAuthKey")
                                                                          .header("Content-Type", "application/json;charset=utf-8")
                                                                          .header("Host", "api-takumi.mihoyo.com")
                                                                          .header("Accept", "application/json, text/plain, */*")
-                                                                         .header("User-Agent", "okhttp/4.8.0")
-                                                                         .header("x-rpc-channel", "mihoyo")
-                                                                         .header("x-rpc-app_version", "2.40.1")
+                                                                         .header("x-rpc-app_version", "2.28.1")
                                                                          .header("x-rpc-client_type", "5")
-
                                                                          .header("x-rpc-device_id", "CBEC8312-AA77-489E-AE8A-8D498DE24E90")
                                                                          .header("DS", HttpDataUtil.getDs())
                                                                          .header("Cookie", stuid_cookie)
-                                                                         .header("Referer", "https://app.mihoyo.com")
-                                                                         .header("Origin", "https://webstatic.mihoyo.com")
-                                                                         .post(createRequestBody)
-                                                                         .build())
+                                                                         .post(createRequestBody).build())
                                 .execute()
                                 .body();
-
+                            
                             String genAuthKeyString = genAuthKeyBody != null ? genAuthKeyBody.string() : null;
 
                             System.out.println(genAuthKeyString);
@@ -162,7 +154,7 @@ public class NetworkManager {
                             AuthKeyDataDto genAuthKeyBean = gson.fromJson(genAuthKeyString, AuthKeyDataDto.class);
 
                             System.out.println(URLEncoder.encode(genAuthKeyBean.getData().getAuthkey(), "utf-8"));
-
+                            
                             //authkey 好像有问题
                             // 崩坏星穹铁道的authkey 是固定的 这个不是固定的
                             StringBuilder sb = new StringBuilder();
@@ -174,16 +166,16 @@ public class NetworkManager {
                             sb.append("&os_system=" + HttpDataUtil.getOs_system());
                             sb.append("&device_model=" + HttpDataUtil.getDevice_model());
                             sb.append("&plat_type=android&page=1&size=5&gacha_type=11&end_id=0");
-
-
-
+                            
+                            
+                            
 
                             System.out.println(sb.toString());
                             arrayList.add(new ListUrl(game_uid, sb.toString()));
                             Message obtain = Message.obtain();
                             obtain.obj = new ChouKaObj(200, "请求成功", arrayList);
                             handler.sendMessage(obtain);
-
+                       
                         }
 
                     } catch (Throwable e) {
