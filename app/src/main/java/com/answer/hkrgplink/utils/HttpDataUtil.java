@@ -8,9 +8,9 @@ import android.os.Build;
  */
 public class HttpDataUtil {
     
-    public static final String getDs() {
+    public static String getDs() {
         String salt = "ulInCDohgEs557j0VsPDYnQaaz6KJcv5";
-        long time = new Date().getTime() / 1000;
+        long time = Math.round(new Date().getTime() / 1000);
         String str = getStr();
         String key = "salt=" + salt + "&t=" + time + "&r=" + str;
         String md5 = Md5Util.getMD5(key);
@@ -19,7 +19,8 @@ public class HttpDataUtil {
     }
     
     
-    public static final String getStr() {
+    
+    public static String getStr() {
         String chars = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678";
         int maxPos = chars.length();
         String code = "";

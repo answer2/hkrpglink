@@ -21,6 +21,7 @@ import java.net.URLEncoder;
 import com.answer.hkrgplink.bean.AuthKeyDataDto;
 import android.os.Message;
 import com.answer.hkrgplink.bean.ChouKaObj;
+import android.os.Build;
 
 /**
  * @Author AnswerDev
@@ -121,31 +122,38 @@ public class NetworkManager {
                             String game_biz = userService.getGame_biz();
                             String region = userService.getRegion();
 
-                            
+
                             AuthKeyPostData authKeyPostData = new AuthKeyPostData("webview_gacha", game_biz, game_uid, region);
                             String toJson = gson.toJson(authKeyPostData);
-                            
+
                             System.out.println(toJson);
-                            
+
                             RequestBody createRequestBody = RequestBody.create(toJson, MediaType.Companion.get("application/json;charset=utf-8"));
+
 
                             //{"data":null,"message":"invalid request","retcode":-10001}
                             System.out.println(stuid_cookie);
                             System.out.println(HttpDataUtil.getDs());
-                            
+
                             ResponseBody genAuthKeyBody = client.newCall(new Request.Builder()
                                                                          .url("https://api-takumi.mihoyo.com/binding/api/genAuthKey")
                                                                          .header("Content-Type", "application/json;charset=utf-8")
                                                                          .header("Host", "api-takumi.mihoyo.com")
                                                                          .header("Accept", "application/json, text/plain, */*")
-                                                                         .header("x-rpc-app_version", "2.28.1")
+                                                                         .header("User-Agent", "okhttp/4.8.0")
+                                                                         .header("x-rpc-channel", "mihoyo")
+                                                                         .header("x-rpc-app_version", "2.40.1")
                                                                          .header("x-rpc-client_type", "5")
+
                                                                          .header("x-rpc-device_id", "CBEC8312-AA77-489E-AE8A-8D498DE24E90")
                                                                          .header("DS", HttpDataUtil.getDs())
                                                                          .header("Cookie", stuid_cookie)
-                                                                         .post(createRequestBody).build())
-                                                                         .execute()
-                                                                         .body();
+                                                                         .header("Referer", "https://app.mihoyo.com")
+                                                                         .header("Origin", "https://webstatic.mihoyo.com")
+                                                                         .post(createRequestBody)
+                                                                         .build())
+                                .execute()
+                                .body();
 
                             String genAuthKeyString = genAuthKeyBody != null ? genAuthKeyBody.string() : null;
 
@@ -154,11 +162,11 @@ public class NetworkManager {
                             AuthKeyDataDto genAuthKeyBean = gson.fromJson(genAuthKeyString, AuthKeyDataDto.class);
 
                             System.out.println(URLEncoder.encode(genAuthKeyBean.getData().getAuthkey(), "utf-8"));
-                            
+
                             //authkey 好像有问题
-                            //{"data":null,"message":"authkey error","retcode":-100}
+                            // 崩坏星穹铁道的authkey 是固定的 这个不是固定的
                             StringBuilder sb = new StringBuilder();
-                            sb.append("https://api-takumi.mihoyo.com/common/gacha_record/api/getGachaLog?authkey_ver=1&sign_type=2&auth_appid=webview_gacha&win_mode=fullscreen&gacha_id=dbebc8d9fbb0d4ffa067423482ce505bc5ea");
+                            sb.append("https://api-takumi.mihoyo.com/common/gacha_record/api/getGachaLog?authkey_ver=1&sign_type=2&auth_appid=webview_gacha&win_mode=fullscreen&gacha_id=b4ac24d133739b7b1d55173f30ccf980e0b73fc1");
                             sb.append("&timestamp=" + System.currentTimeMillis());
                             sb.append("&region=" + region);
                             sb.append("&default_gacha_type=11&lang=zh-cn&authkey=" + URLEncoder.encode(genAuthKeyBean.getData().getAuthkey(), "utf-8"));
@@ -168,12 +176,14 @@ public class NetworkManager {
                             sb.append("&plat_type=android&page=1&size=5&gacha_type=11&end_id=0");
 
 
+
+
                             System.out.println(sb.toString());
                             arrayList.add(new ListUrl(game_uid, sb.toString()));
                             Message obtain = Message.obtain();
                             obtain.obj = new ChouKaObj(200, "请求成功", arrayList);
                             handler.sendMessage(obtain);
-                       
+
                         }
 
                     } catch (Throwable e) {
